@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ScanMitra — Project Architecture Document</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --ink: #0f1117;
+    --ink2: #3a3d4a;
+    --ink3: #6b6f7e;
+    --rule: #e2e4eb;
+    --teal: #0d9488;
+    --teal-light: #e6f7f6;
+    --teal-mid: #99d4cf;
+    --blue: #2563eb;
+    --blue-light: #eff4ff;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --coral: #e05c3a;
+    --coral-light: #fff1ee;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --purple: #7c3aed;
+    --purple-light: #f5f0ff;
+    --gray-bg: #f7f8fa;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink);
+    background: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    padding: 72px 0 56px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 56px;
+  }
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .cover-sub {
+    font-size: 19px;
+    color: var(--ink2);
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .cover-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cover-meta-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+  .cover-meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ── SECTION HEADINGS ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 20px;
+    line-height: 1.25;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+    margin-top: 28px;
+  }
+  h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink2);
+    margin-bottom: 6px;
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  p { color: var(--ink2); margin-bottom: 14px; }
+
+  section { margin-bottom: 64px; }
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin-bottom: 48px;
+  }
+
+  /* ── TECH STACK TABLE ── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .stack-card {
+    background: var(--gray-bg);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .stack-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .stack-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .stack-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .stack-card p {
+    font-size: 13.5px;
+    color: var(--ink3);
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+  .stack-tech-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .pill-teal  { background: var(--teal-light);   color: var(--teal);   }
+  .pill-blue  { background: var(--blue-light);    color: var(--blue);   }
+  .pill-amber { background: var(--amber-light);   color: var(--amber);  }
+  .pill-coral { background: var(--coral-light);   color: var(--coral);  }
+  .pill-green { background: var(--green-light);   color: var(--green);  }
+  .pill-purple{ background: var(--purple-light);  color: var(--purple); }
+  .pill-gray  { background: var(--rule);          color: var(--ink2);   }
+
+  /* ── SCREEN FLOW ── */
+  .flow-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+  .flow-table thead tr {
+    background: var(--ink);
+    color: #fff;
+  }
+  .flow-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .flow-table tbody tr:nth-child(even) { background: var(--gray-bg); }
+  .flow-table tbody tr:hover { background: var(--teal-light); }
+  .flow-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    color: var(--ink2);
+  }
+  .flow-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .flow-table td:nth-child(2) {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--teal);
+  }
+  .screen-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .badge-patient  { background: var(--teal-light);   color: var(--teal);   }
+  .badge-doctor   { background: var(--blue-light);    color: var(--blue);   }
+  .badge-shared   { background: var(--purple-light);  color: var(--purple); }
+
+  /* ── DB SCHEMA ── */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .schema-table {
+    background: var(--gray-bg);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .schema-table-header {
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .schema-table-body {
+    padding: 0;
+  }
+  .schema-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 16px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 13px;
+    gap: 16px;
+  }
+  .schema-row:last-child { border-bottom: none; }
+  .schema-field { color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .schema-type  { color: var(--ink3); font-family: 'DM Mono', monospace; font-size: 11px; }
+  .schema-note  { color: var(--teal); font-size: 11px; margin-left: auto; }
+
+  /* ── QUEUE STATES ── */
+  .states-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .state-box {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 110px;
+  }
+  .state-arrow {
+    font-size: 18px;
+    color: var(--ink3);
+    padding: 0 4px;
+  }
+  .state-pending    { background: var(--amber-light);  color: var(--amber);  border: 1.5px solid #fcd34d; }
+  .state-confirmed  { background: var(--blue-light);   color: var(--blue);   border: 1.5px solid #93c5fd; }
+  .state-inqueue    { background: var(--purple-light);  color: var(--purple); border: 1.5px solid #c4b5fd; }
+  .state-inprogress { background: var(--teal-light);   color: var(--teal);   border: 1.5px solid var(--teal-mid); }
+  .state-done       { background: var(--green-light);  color: var(--green);  border: 1.5px solid #86efac; }
+  .state-noshow     { background: var(--coral-light);  color: var(--coral);  border: 1.5px solid #fca5a5; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .callout-teal   { border-color: var(--teal);   background: var(--teal-light);   color: var(--ink2); }
+  .callout-amber  { border-color: var(--amber);  background: var(--amber-light);  color: var(--ink2); }
+  .callout-blue   { border-color: var(--blue);   background: var(--blue-light);   color: var(--ink2); }
+  .callout strong { color: var(--ink); }
+
+  /* ── API ENDPOINTS TABLE ── */
+  .api-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .api-table thead tr { background: var(--gray-bg); }
+  .api-table thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink3);
+    border-bottom: 2px solid var(--rule);
+  }
+  .api-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    color: var(--ink2);
+  }
+  .method {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .get    { background: #dcfce7; color: #15803d; }
+  .post   { background: #dbeafe; color: #1d4ed8; }
+  .put    { background: #fef9c3; color: #a16207; }
+  .patch  { background: #ede9fe; color: #6d28d9; }
+  .delete { background: #fee2e2; color: #b91c1c; }
+  .api-path {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  /* ── NOTIFICATION TRIGGERS TABLE ── */
+  .notif-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 8px;
+  }
+  .notif-table thead th {
+    background: var(--gray-bg);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink3);
+    border-bottom: 2px solid var(--rule);
+  }
+  .notif-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+
+  /* ── FOLDER TREE ── */
+  .folder-tree {
+    background: var(--ink);
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  .folder-tree .dir  { color: #7dd3fc; }
+  .folder-tree .file { color: #d1d5db; }
+  .folder-tree .cmt  { color: #6b7280; }
+
+  /* ── DEPLOYMENT TABLE ── */
+  .deploy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .deploy-card {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: var(--gray-bg);
+  }
+  .deploy-card-title { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .deploy-card-sub { font-size: 12px; color: var(--ink3); margin-bottom: 10px; }
+  .deploy-card p { font-size: 13px; color: var(--ink2); margin-bottom: 0; }
+
+  @media print {
+    body { padding: 0 20px; }
+    .cover { padding: 48px 0 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ COVER ═══════════ -->
+<div class="cover">
+  <div class="cover-eyebrow">Project Architecture Document</div>
+  <h1>ScanMitra</h1>
+  <div class="cover-sub">Real-time queueing system for ultrasound &amp; X-ray centers</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Version</span>
+      <span class="cover-meta-value">1.0 — Initial</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Interfaces</span>
+      <span class="cover-meta-value">Patient App · Doctor Dashboard</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Core feature</span>
+      <span class="cover-meta-value">Smart queue with 30-min buffer logic</span>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════ 1. OVERVIEW ═══════════ -->
+<section>
+  <div class="section-label">01</div>
+  <h2>Project Overview</h2>
+  <p>ScanMitra is a real-time slot booking and queue management platform for diagnostic imaging centers (ultrasound, X-ray, MRI). Patients browse nearby centers, view reviews and live queue availability, book a slot, and receive smart notifications about their queue position and any delays. Doctors and center staff use a dedicated dashboard to manage the queue, mark scans as done, and update delays in real time.</p>
+  <p>There is no payment step. After selecting a slot the patient sees a simple <strong>Booking Done Successfully</strong> confirmation screen.</p>
+
+  <div class="callout callout-teal">
+    <strong>Core problem solved:</strong> Patients at diagnostic centers currently wait hours without any visibility into the queue. ScanMitra gives them live queue position, ETA, and proactive delay alerts — removing the anxiety and the wasted waiting time at the center.
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 2. SCREEN MAP ═══════════ -->
+<section>
+  <div class="section-label">02</div>
+  <h2>Complete Screen Map</h2>
+  <p>All screens identified from the wireframe, mapped by interface and route.</p>
+
+  <table class="flow-table">
+    <thead>
+      <tr>
+        <th>Screen Name</th>
+        <th>Route</th>
+        <th>Interface</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Landing / Home</td>
+        <td>/</td>
+        <td><span class="screen-badge badge-shared">Shared</span></td>
+        <td>Hero with search, top centers, "how it works" section. Hamburger menu with Login button.</td>
+      </tr>
+      <tr>
+        <td>Login / Register</td>
+        <td>/auth</td>
+        <td><span class="screen-badge badge-shared">Shared</span></td>
+        <td>Phone/email + OTP flow. Separate paths for Patient and Doctor/Center Staff.</td>
+      </tr>
+      <tr>
+        <td>Patient Onboarding</td>
+        <td>/onboarding</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>First-time setup: name, blood group, service preferences, medical history.</td>
+      </tr>
+      <tr>
+        <td>Patient Profile</td>
+        <td>/profile</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>View and edit: name, blood group, service, medical history. Shows past test reports section.</td>
+      </tr>
+      <tr>
+        <td>Center Listing</td>
+        <td>/centers</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Search + filter. Cards showing center name, services, rating, distance, live queue length.</td>
+      </tr>
+      <tr>
+        <td>Center Detail</td>
+        <td>/centers/:id</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Full center info, services list, doctor details, reviews, live queue availability calendar.</td>
+      </tr>
+      <tr>
+        <td>Slot Booking</td>
+        <td>/centers/:id/book</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Date picker → available time slots with real-time queue count → confirm details → book.</td>
+      </tr>
+      <tr>
+        <td>Booking Confirmation</td>
+        <td>/booking/success</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>"Booking Done Successfully" screen with token number, date/time, center name, and a Share button.</td>
+      </tr>
+      <tr>
+        <td>Queue Status</td>
+        <td>/queue/:bookingId</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Live view: current token being served, patient's token, estimated wait time. Updates via WebSocket.</td>
+      </tr>
+      <tr>
+        <td>Appointment History</td>
+        <td>/appointments</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Past and upcoming bookings. Status badges: Confirmed / Completed / No-show. Leave Review button on completed.</td>
+      </tr>
+      <tr>
+        <td>Test Report</td>
+        <td>/reports/:id</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>View uploaded scan reports (PDF/image). Uploaded by center staff post-scan.</td>
+      </tr>
+      <tr>
+        <td>Leave Review</td>
+        <td>/review/:bookingId</td>
+        <td><span class="screen-badge badge-patient">Patient</span></td>
+        <td>Star rating + text feedback for a completed appointment. Shown in Center Detail for future patients.</td>
+      </tr>
+      <tr>
+        <td>Doctor Dashboard</td>
+        <td>/doctor</td>
+        <td><span class="screen-badge badge-doctor">Doctor</span></td>
+        <td>Today's queue list. Current patient card. Mark as Done / Delayed buttons. Manual queue override.</td>
+      </tr>
+      <tr>
+        <td>Doctor — Queue Update</td>
+        <td>/doctor/queue</td>
+        <td><span class="screen-badge badge-doctor">Doctor</span></td>
+        <td>Manual controls: mark patient as done, mark delay (with delay duration), skip no-show, update facility status.</td>
+      </tr>
+      <tr>
+        <td>Center Admin Panel</td>
+        <td>/admin</td>
+        <td><span class="screen-badge badge-doctor">Doctor</span></td>
+        <td>Manage slots/schedule, upload test reports, view analytics (future phase).</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 3. TECH STACK ═══════════ -->
+<section>
+  <div class="section-label">03</div>
+  <h2>Recommended Tech Stack</h2>
+
+  <div class="stack-grid">
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--teal)"></div>
+        <div class="stack-card-title">Patient Frontend</div>
+      </div>
+      <p>Progressive Web App using Next.js 14 (App Router). Installable on mobile without a separate React Native app — avoids the app store overhead for a first version. Tailwind CSS + shadcn/ui for consistent, rapid UI.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-teal">Next.js 14</span>
+        <span class="pill pill-teal">Tailwind CSS</span>
+        <span class="pill pill-teal">shadcn/ui</span>
+        <span class="pill pill-teal">PWA (next-pwa)</span>
+        <span class="pill pill-teal">React Query</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--blue)"></div>
+        <div class="stack-card-title">Doctor Dashboard</div>
+      </div>
+      <p>Next.js web app running on the same codebase under a separate route group (/doctor). Protected by role-based middleware. Uses the same design system as the patient side.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-blue">Next.js 14</span>
+        <span class="pill pill-blue">Role-based auth</span>
+        <span class="pill pill-blue">Recharts</span>
+        <span class="pill pill-blue">Socket.IO client</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--coral)"></div>
+        <div class="stack-card-title">Backend API</div>
+      </div>
+      <p>Node.js with Express (or Fastify for better performance). Handles all REST endpoints. Runs as a separate service from the Next.js frontend so it can maintain persistent WebSocket connections — Vercel serverless functions do not support long-lived sockets.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-coral">Node.js</span>
+        <span class="pill pill-coral">Express / Fastify</span>
+        <span class="pill pill-coral">Socket.IO server</span>
+        <span class="pill pill-coral">JWT auth</span>
+        <span class="pill pill-coral">Zod validation</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--purple)"></div>
+        <div class="stack-card-title">Queue Engine</div>
+      </div>
+      <p>Postgres-based job queue — a lightweight <code>job_queue</code> table replaces Redis/BullMQ entirely. A Node.js cron worker polls it every 30 seconds for due jobs (no-show timers, reminders, ETA recalculations). No extra infrastructure needed — Supabase Postgres is already there.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-purple">Postgres job table</span>
+        <span class="pill pill-purple">node-cron</span>
+        <span class="pill pill-purple">Socket.IO broadcast</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--amber)"></div>
+        <div class="stack-card-title">Database</div>
+      </div>
+      <p>PostgreSQL via Supabase — free tier includes 500MB database, built-in auth, and file storage all in one place. Prisma ORM for type-safe queries and migrations. Supabase also replaces the need for a separate Redis instance for live queue state.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-amber">Supabase Postgres</span>
+        <span class="pill pill-amber">Prisma ORM</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--green)"></div>
+        <div class="stack-card-title">Notifications</div>
+      </div>
+      <p>Web Push API (native browser standard, completely free) for push notifications — no Firebase needed. Nodemailer with Gmail SMTP for transactional email (booking confirmation, report ready). No paid services at all.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-green">Web Push API</span>
+        <span class="pill pill-green">web-push (npm)</span>
+        <span class="pill pill-green">Nodemailer + Gmail</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--ink2)"></div>
+        <div class="stack-card-title">File Storage</div>
+      </div>
+      <p>Supabase Storage (free tier: 1GB) for scan reports (PDF), profile images, and center photos. Already included in the Supabase free plan — no separate service needed. Files are served via signed URLs with expiry for security.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-gray">Supabase Storage</span>
+        <span class="pill pill-gray">Signed URLs</span>
+        <span class="pill pill-gray">1GB free</span>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">
+        <div class="stack-dot" style="background:var(--teal)"></div>
+        <div class="stack-card-title">Deployment</div>
+      </div>
+      <p>Vercel for the Next.js frontend. Render free tier for the Node.js backend (supports persistent WebSocket connections, 750 free hours/month). GitHub Actions for CI/CD. Everything runs on free tiers.</p>
+      <div class="stack-tech-pills">
+        <span class="pill pill-teal">Vercel (frontend)</span>
+        <span class="pill pill-teal">Render (backend)</span>
+        <span class="pill pill-teal">GitHub Actions</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 4. DATABASE SCHEMA ═══════════ -->
+<section>
+  <div class="section-label">04</div>
+  <h2>Database Schema</h2>
+  <p>Core Prisma tables. All IDs are UUIDs. Timestamps (createdAt, updatedAt) are present on every table but omitted below for brevity.</p>
+
+  <div class="schema-grid">
+
+    <div class="schema-table">
+      <div class="schema-table-header">users</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">name</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">phone</span><span class="schema-type">String UNIQUE</span></div>
+        <div class="schema-row"><span class="schema-field">email</span><span class="schema-type">String?</span></div>
+        <div class="schema-row"><span class="schema-field">role</span><span class="schema-type">PATIENT | DOCTOR | ADMIN</span></div>
+        <div class="schema-row"><span class="schema-field">bloodGroup</span><span class="schema-type">String?</span></div>
+        <div class="schema-row"><span class="schema-field">medicalHistory</span><span class="schema-type">Text?</span></div>
+        <div class="schema-row"><span class="schema-field">servicePreference</span><span class="schema-type">String?</span></div>
+        <div class="schema-row"><span class="schema-field">pushSubscription</span><span class="schema-type">Text?</span><span class="schema-note">Web Push JSON</span></div>
+      </div>
+    </div>
+
+    <div class="schema-table">
+      <div class="schema-table-header">centers</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">name</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">address</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">lat / lng</span><span class="schema-type">Float</span></div>
+        <div class="schema-row"><span class="schema-field">services</span><span class="schema-type">String[]</span></div>
+        <div class="schema-row"><span class="schema-field">openTime</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">closeTime</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">avgRating</span><span class="schema-type">Float</span></div>
+        <div class="schema-row"><span class="schema-field">slotDuration</span><span class="schema-type">Int (minutes)</span></div>
+      </div>
+    </div>
+
+    <div class="schema-table">
+      <div class="schema-table-header">bookings</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">patientId</span><span class="schema-type">FK → users</span></div>
+        <div class="schema-row"><span class="schema-field">centerId</span><span class="schema-type">FK → centers</span></div>
+        <div class="schema-row"><span class="schema-field">slotId</span><span class="schema-type">FK → slots</span></div>
+        <div class="schema-row"><span class="schema-field">tokenNumber</span><span class="schema-type">Int</span></div>
+        <div class="schema-row"><span class="schema-field">service</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">status</span><span class="schema-type">BookingStatus enum</span></div>
+        <div class="schema-row"><span class="schema-field">scheduledAt</span><span class="schema-type">DateTime</span></div>
+        <div class="schema-row"><span class="schema-field">arrivedAt</span><span class="schema-type">DateTime?</span></div>
+        <div class="schema-row"><span class="schema-field">completedAt</span><span class="schema-type">DateTime?</span></div>
+      </div>
+    </div>
+
+    <div class="schema-table">
+      <div class="schema-table-header">slots</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">centerId</span><span class="schema-type">FK → centers</span></div>
+        <div class="schema-row"><span class="schema-field">date</span><span class="schema-type">Date</span></div>
+        <div class="schema-row"><span class="schema-field">startTime</span><span class="schema-type">String (HH:MM)</span></div>
+        <div class="schema-row"><span class="schema-field">capacity</span><span class="schema-type">Int</span></div>
+        <div class="schema-row"><span class="schema-field">booked</span><span class="schema-type">Int (default 0)</span></div>
+        <div class="schema-row"><span class="schema-field">isActive</span><span class="schema-type">Boolean</span></div>
+      </div>
+    </div>
+
+    <div class="schema-table">
+      <div class="schema-table-header">reviews</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">bookingId</span><span class="schema-type">FK → bookings UNIQUE</span></div>
+        <div class="schema-row"><span class="schema-field">patientId</span><span class="schema-type">FK → users</span></div>
+        <div class="schema-row"><span class="schema-field">centerId</span><span class="schema-type">FK → centers</span></div>
+        <div class="schema-row"><span class="schema-field">rating</span><span class="schema-type">Int (1–5)</span></div>
+        <div class="schema-row"><span class="schema-field">comment</span><span class="schema-type">Text?</span></div>
+      </div>
+    </div>
+
+    <div class="schema-table">
+      <div class="schema-table-header">reports</div>
+      <div class="schema-table-body">
+        <div class="schema-row"><span class="schema-field">id</span><span class="schema-type">UUID PK</span></div>
+        <div class="schema-row"><span class="schema-field">bookingId</span><span class="schema-type">FK → bookings</span></div>
+        <div class="schema-row"><span class="schema-field">patientId</span><span class="schema-type">FK → users</span></div>
+        <div class="schema-row"><span class="schema-field">fileUrl</span><span class="schema-type">String (Supabase URL)</span></div>
+        <div class="schema-row"><span class="schema-field">fileName</span><span class="schema-type">String</span></div>
+        <div class="schema-row"><span class="schema-field">uploadedById</span><span class="schema-type">FK → users (doctor)</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <h4>BookingStatus Enum</h4>
+  <div class="states-flow">
+    <div class="state-box state-pending">PENDING</div>
+    <div class="state-arrow">→</div>
+    <div class="state-box state-confirmed">CONFIRMED</div>
+    <div class="state-arrow">→</div>
+    <div class="state-box state-inqueue">IN_QUEUE</div>
+    <div class="state-arrow">→</div>
+    <div class="state-box state-inprogress">IN_PROGRESS</div>
+    <div class="state-arrow">→</div>
+    <div class="state-box state-done">DONE</div>
+  </div>
+  <p style="margin-top:10px">IN_QUEUE can also transition to <span style="color:var(--coral);font-weight:600">NO_SHOW</span> after the 30-minute buffer expires with no arrival.</p>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 5. QUEUE ENGINE ═══════════ -->
+<section>
+  <div class="section-label">05</div>
+  <h2>Queue Engine Logic</h2>
+
+  <h3>Step-by-step flow</h3>
+
+  <p><strong>1. Booking created</strong> — Status set to PENDING. Confirmation SMS/push sent to patient. Token number assigned sequentially per center per day.</p>
+
+  <p><strong>2. Day-of confirmation</strong> — 1 hour before slot, an automated reminder is sent. Status moves to CONFIRMED.</p>
+
+  <p><strong>3. Slot time reached</strong> — BullMQ job fires. Status set to IN_QUEUE. Patient's queue screen goes live via WebSocket. Doctor dashboard shows the patient as next-up.</p>
+
+  <p><strong>4. Patient arrives &amp; is called</strong> — Doctor clicks "Call next." Status moves to IN_PROGRESS. A scan duration timer starts internally to detect overruns.</p>
+
+  <p><strong>5. Scan done</strong> — Doctor clicks "Mark Done." Status moves to DONE. Next patient in queue is automatically promoted. A "Leave Review" prompt is sent to the completed patient.</p>
+
+  <h3>No-show (30-minute buffer)</h3>
+  <div class="callout callout-amber">
+    <strong>Buffer logic:</strong> When a patient reaches IN_QUEUE status but has not been marked as arrived within 30 minutes, a BullMQ job fires. The system checks the next patient in line and sends them a WebSocket + push notification: "The patient ahead is running late — do you want to come in earlier?" If they accept, the queue cascade-advances and all downstream ETAs are recalculated. If they decline or don't respond within 5 minutes, the queue order remains unchanged. The late patient is marked NO_SHOW only if the doctor explicitly confirms it.
+  </div>
+
+  <h3>Delay broadcast</h3>
+  <div class="callout callout-blue">
+    <strong>Delay flow:</strong> The doctor clicks "Mark Delay" and enters the delay in minutes. The system adds this delay to the base ETA of every upcoming booking for that day and fires a batch of push notifications: "Your appointment at City Scan Center is now estimated at 3:45 PM (30-min delay)." The Queue Status screen updates live via WebSocket for all connected patients.
+  </div>
+
+  <h3>Postgres job queue (replaces Redis/BullMQ)</h3>
+  <p>A <code>job_queue</code> table in Supabase Postgres stores all scheduled jobs. A Node.js cron (node-cron) runs every 30 seconds on the backend, picks up due jobs, executes them, and marks them done. This is 100% free and requires no extra infrastructure.</p>
+
+  <div class="folder-tree" style="margin-bottom:20px">
+    <span class="cmt"># job_queue table columns</span><br/>
+    <span class="dir">id</span>          UUID PK<br/>
+    <span class="dir">type</span>        String  <span class="cmt">  # NO_SHOW_CHECK | REMINDER | ETA_BROADCAST</span><br/>
+    <span class="dir">payload</span>     JSON    <span class="cmt">  # { bookingId, centerId, ... }</span><br/>
+    <span class="dir">runAt</span>       DateTime<span class="cmt">  # when to execute</span><br/>
+    <span class="dir">status</span>      String  <span class="cmt">  # PENDING | DONE | FAILED</span><br/>
+    <span class="dir">createdAt</span>   DateTime
+  </div>
+
+  <h3>Live queue state</h3>
+  <p>Instead of Redis, current queue state (current token, delay minutes) is stored directly in a <code>queue_state</code> table in Postgres, updated on every doctor action. The Queue Status screen reads this on connect, then receives all further updates via WebSocket — so database reads are minimal.</p>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 6. API ENDPOINTS ═══════════ -->
+<section>
+  <div class="section-label">06</div>
+  <h2>Core API Endpoints</h2>
+
+  <h3>Auth</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/auth/send-otp</td><td>Send OTP to phone number</td></tr>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/auth/verify-otp</td><td>Verify OTP, return JWT + refresh token</td></tr>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/auth/refresh</td><td>Refresh access token</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Patient</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/patients/me</td><td>Get current patient profile</td></tr>
+      <tr><td><span class="method patch">PATCH</span></td><td class="api-path">/patients/me</td><td>Update profile (name, blood group, medical history)</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/patients/me/bookings</td><td>All bookings with status</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/patients/me/reports</td><td>All test reports</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Centers</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/centers</td><td>List centers (search, filter by service, sort by rating/distance)</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/centers/:id</td><td>Center details, services, reviews, live queue count</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/centers/:id/slots</td><td>Available slots for a date</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/centers/:id/reviews</td><td>Paginated reviews</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Bookings</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/bookings</td><td>Create booking. Returns token number + confirmation. No payment step.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/bookings/:id</td><td>Booking detail + current queue position</td></tr>
+      <tr><td><span class="method delete">DELETE</span></td><td class="api-path">/bookings/:id</td><td>Cancel booking (allowed up to 2h before slot)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Queue (Doctor)</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span></td><td class="api-path">/doctor/queue</td><td>Today's full queue for the doctor's center</td></tr>
+      <tr><td><span class="method patch">PATCH</span></td><td class="api-path">/doctor/queue/:bookingId/done</td><td>Mark scan as done, advance queue</td></tr>
+      <tr><td><span class="method patch">PATCH</span></td><td class="api-path">/doctor/queue/:bookingId/no-show</td><td>Mark patient as no-show</td></tr>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/doctor/queue/delay</td><td>Broadcast delay (minutes) to all upcoming patients</td></tr>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/doctor/reports</td><td>Upload test report (multipart, stored in R2)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reviews</h3>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method post">POST</span></td><td class="api-path">/reviews</td><td>Submit review for a completed booking (one per booking)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 7. NOTIFICATIONS ═══════════ -->
+<section>
+  <div class="section-label">07</div>
+  <h2>Notification Triggers</h2>
+
+  <table class="notif-table">
+    <thead>
+      <tr><th>Trigger event</th><th>Channel</th><th>Message</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Booking created</td>
+        <td>Push + Email</td>
+        <td>"Your slot at [Center] is confirmed. Token #[N] · [Date] [Time]"</td>
+      </tr>
+      <tr>
+        <td>1 hour before slot</td>
+        <td>Push</td>
+        <td>"Reminder: your appointment is in 1 hour at [Center]. Queue is currently [N] ahead."</td>
+      </tr>
+      <tr>
+        <td>Patient's token is next</td>
+        <td>Push + WebSocket</td>
+        <td>"You're next! Please head to the reception at [Center]."</td>
+      </tr>
+      <tr>
+        <td>Doctor marks delay</td>
+        <td>Push + WebSocket</td>
+        <td>"Queue at [Center] is running [X] min late. Your revised ETA is [time]."</td>
+      </tr>
+      <tr>
+        <td>Previous patient is no-show (cascade ask)</td>
+        <td>Push + WebSocket</td>
+        <td>"The patient ahead didn't arrive. Would you like to come in earlier? [Yes / No]"</td>
+      </tr>
+      <tr>
+        <td>Booking cancelled</td>
+        <td>Push + Email</td>
+        <td>"Your booking at [Center] on [Date] has been cancelled."</td>
+      </tr>
+      <tr>
+        <td>Test report uploaded</td>
+        <td>Push + Email</td>
+        <td>"Your test report from [Center] is ready. View it in the ScanMitra app."</td>
+      </tr>
+      <tr>
+        <td>Post-scan review prompt</td>
+        <td>Push</td>
+        <td>"How was your experience at [Center]? Leave a review — it helps others."</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 8. FOLDER STRUCTURE ═══════════ -->
+<section>
+  <div class="section-label">08</div>
+  <h2>Project Folder Structure</h2>
+
+  <div class="folder-tree">
+<span class="dir">scanmitra/</span><br/>
+├── <span class="dir">frontend/</span>                     <span class="cmt"># Next.js 14 App Router</span><br/>
+│   ├── <span class="dir">app/</span><br/>
+│   │   ├── <span class="dir">(patient)/</span>            <span class="cmt"># Patient route group</span><br/>
+│   │   │   ├── <span class="dir">page.tsx</span>           <span class="cmt"># Landing / Home</span><br/>
+│   │   │   ├── <span class="dir">centers/</span><br/>
+│   │   │   │   ├── <span class="file">page.tsx</span>       <span class="cmt"># Center listing</span><br/>
+│   │   │   │   └── <span class="dir">[id]/</span><br/>
+│   │   │   │       ├── <span class="file">page.tsx</span>   <span class="cmt"># Center detail</span><br/>
+│   │   │   │       └── <span class="dir">book/page.tsx</span> <span class="cmt"># Slot booking</span><br/>
+│   │   │   ├── <span class="dir">booking/</span><br/>
+│   │   │   │   └── <span class="file">success/page.tsx</span> <span class="cmt"># Booking done successfully</span><br/>
+│   │   │   ├── <span class="dir">queue/[bookingId]/page.tsx</span> <span class="cmt"># Live queue status</span><br/>
+│   │   │   ├── <span class="dir">appointments/page.tsx</span><br/>
+│   │   │   ├── <span class="dir">profile/page.tsx</span><br/>
+│   │   │   └── <span class="dir">reports/[id]/page.tsx</span><br/>
+│   │   ├── <span class="dir">(doctor)/</span>             <span class="cmt"># Doctor route group</span><br/>
+│   │   │   ├── <span class="dir">doctor/page.tsx</span>    <span class="cmt"># Dashboard</span><br/>
+│   │   │   └── <span class="dir">doctor/queue/page.tsx</span><br/>
+│   │   └── <span class="dir">auth/page.tsx</span><br/>
+│   ├── <span class="dir">components/</span><br/>
+│   │   ├── <span class="dir">ui/</span>                   <span class="cmt"># shadcn/ui base</span><br/>
+│   │   ├── <span class="dir">queue/</span>                <span class="cmt"># QueueCard, QueueTimer, etc.</span><br/>
+│   │   └── <span class="dir">center/</span>               <span class="cmt"># CenterCard, ReviewList, etc.</span><br/>
+│   └── <span class="dir">lib/</span><br/>
+│       ├── <span class="file">socket.ts</span>             <span class="cmt"># Socket.IO client singleton</span><br/>
+│       └── <span class="file">api.ts</span>                <span class="cmt"># React Query hooks</span><br/>
+│<br/>
+├── <span class="dir">backend/</span>                      <span class="cmt"># Node.js Express API</span><br/>
+│   ├── <span class="dir">src/</span><br/>
+│   │   ├── <span class="dir">routes/</span>               <span class="cmt"># auth, centers, bookings, queue, reviews</span><br/>
+│   │   ├── <span class="dir">services/</span><br/>
+│   │   │   ├── <span class="file">queueEngine.ts</span>    <span class="cmt"># State machine + Postgres ops</span><br/>
+│   │   │   ├── <span class="file">notificationService.ts</span><br/>
+│   │   │   └── <span class="file">socketService.ts</span>   <span class="cmt"># Socket.IO room management</span><br/>
+│   │   ├── <span class="dir">workers/</span><br/>
+│   │   │   ├── <span class="file">jobRunner.ts</span>      <span class="cmt"># node-cron polling job_queue table</span><br/>
+│   │   │   ├── <span class="file">noShowHandler.ts</span>  <span class="cmt"># 30-min buffer logic</span><br/>
+│   │   │   └── <span class="file">reminderHandler.ts</span><span class="cmt"># Pre-appointment reminders</span><br/>
+│   │   ├── <span class="dir">middleware/</span>           <span class="cmt"># auth, roleGuard, rateLimiter</span><br/>
+│   │   └── <span class="file">prisma.ts</span>             <span class="cmt"># Prisma client singleton</span><br/>
+│   └── <span class="file">Dockerfile</span><br/>
+│<br/>
+└── <span class="dir">prisma/</span><br/>
+    ├── <span class="file">schema.prisma</span><br/>
+    └── <span class="dir">migrations/</span>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 9. DEPLOYMENT ═══════════ -->
+<section>
+  <div class="section-label">09</div>
+  <h2>Deployment Plan</h2>
+
+  <div class="deploy-grid">
+    <div class="deploy-card">
+      <div class="deploy-card-title">Frontend</div>
+      <div class="deploy-card-sub">Vercel — Free</div>
+      <p>Zero-config Next.js deployment. Edge CDN globally. Automatic preview deployments per PR. 100GB bandwidth free.</p>
+    </div>
+    <div class="deploy-card">
+      <div class="deploy-card-title">Backend API</div>
+      <div class="deploy-card-sub">Render — Free</div>
+      <p>750 free hours/month. Supports persistent WebSocket connections. Auto-deploys from GitHub. Spins down after inactivity (15 min warm-up on free tier).</p>
+    </div>
+    <div class="deploy-card">
+      <div class="deploy-card-title">Database + Storage</div>
+      <div class="deploy-card-sub">Supabase — Free</div>
+      <p>500MB Postgres + 1GB file storage + auth in one free plan. No separate Redis, S3, or auth service needed.</p>
+    </div>
+    <div class="deploy-card">
+      <div class="deploy-card-title">Push Notifications</div>
+      <div class="deploy-card-sub">Web Push API — Free</div>
+      <p>Native browser standard. Uses VAPID keys generated once. No Firebase, no third-party dependency, completely free forever.</p>
+    </div>
+    <div class="deploy-card">
+      <div class="deploy-card-title">Email</div>
+      <div class="deploy-card-sub">Nodemailer + Gmail — Free</div>
+      <p>Send transactional emails via Gmail SMTP with an app password. No paid email service. Works reliably for low-volume transactional mail.</p>
+    </div>
+    <div class="deploy-card">
+      <div class="deploy-card-title">CI/CD</div>
+      <div class="deploy-card-sub">GitHub Actions — Free</div>
+      <p>2,000 free minutes/month. Runs Prisma migrations, type-check, lint, and triggers Vercel + Render deployments on push to main.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+
+<!-- ═══════════ 10. WHAT'S NOT INCLUDED ═══════════ -->
+<section>
+  <div class="section-label">10</div>
+  <h2>Out of Scope (V1)</h2>
+  <p>The following are deliberately excluded from this version as per project requirements:</p>
+  <div class="callout callout-teal">
+    <strong>No online payment integration.</strong> After slot selection, patients see a simple "Booking Done Successfully" screen. Payment is handled in person at the center — it is outside ScanMitra's scope entirely.
+  </div>
+  <p>Also excluded from V1: center analytics dashboard, multi-doctor per center scheduling, insurance integration, DICOM viewer for scans, and a native iOS/Android app (PWA covers mobile for V1).</p>
+</section>
+
+</body>
+</html>
