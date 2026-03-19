@@ -1,9 +1,56 @@
 "use client";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Badge from "../ui/badge/Badge";
 import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon } from "@/icons";
 
 export const EcommerceMetrics = () => {
+  const [clinicCount, setClinicCount] = useState<number | null>(null);
+  const [doctorCount, setDoctorCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/clinics")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!isMounted || !payload?.success || !Array.isArray(payload.data)) {
+          return;
+        }
+
+        const totalClinics = payload.data.length;
+        const totalDoctors = payload.data.reduce(
+          (sum: number, clinic: { _count?: { doctors?: number } }) =>
+            sum + (clinic._count?.doctors ?? 0),
+          0
+        );
+
+        setClinicCount(totalClinics);
+        setDoctorCount(totalDoctors);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setClinicCount(null);
+        setDoctorCount(null);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const clinicsText = useMemo(
+    () => (clinicCount === null ? "--" : clinicCount.toString()),
+    [clinicCount]
+  );
+
+  const doctorsText = useMemo(
+    () => (doctorCount === null ? "--" : doctorCount.toString()),
+    [doctorCount]
+  );
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* <!-- Metric Item Start --> */}
@@ -15,15 +62,15 @@ export const EcommerceMetrics = () => {
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Customers
+              Active Centers
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              3,782
+              {clinicsText}
             </h4>
           </div>
           <Badge color="success">
             <ArrowUpIcon />
-            11.01%
+            Live
           </Badge>
         </div>
       </div>
@@ -37,16 +84,16 @@ export const EcommerceMetrics = () => {
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Orders
+              Doctors
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              5,359
+              {doctorsText}
             </h4>
           </div>
 
           <Badge color="error">
             <ArrowDownIcon className="text-error-500" />
-            9.05%
+            Sync
           </Badge>
         </div>
       </div>

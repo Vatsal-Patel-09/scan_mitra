@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum SlotStatus {
+  AVAILABLE
+  LOCKED
+  BOOKED
+  BLOCKED
+  COMPLETED
+}
+
+enum AppointmentType {
+  PREBOOKED
+  WALKIN
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_QUEUE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum SmsType {
+  BOOKING_CONFIRMATION
+  REMINDER_24H
+  REMINDER_1H
+  YOU_ARE_NEXT
+  DOCTOR_DELAY
+  CANCELLATION
+  SLOT_CHANGE
+  OTP
+}
+
+enum SmsStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  phone        String?   @unique
+  email        String?   @unique
+  name         String
+  passwordHash String?
+  role         Role      @default(PATIENT)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  patient  Patient?
+  doctor   Doctor?
+  sessions Session[]
+
+  @@index([phone])
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Patient {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  dateOfBirth      DateTime?
+  gender           Gender?
+  bloodGroup       String?
+  emergencyContact String?
+  medicalNotes     String?
+  createdAt        DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  phone     String
+  specialty String[]
+  timezone  String   @default("Asia/Kolkata")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors Doctor[]
+  slots   Slot[]
+}
+
+model Doctor {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  clinicId      String
+  qualification String
+  specialty     String[]
+  slotDuration  Int      @default(15)
+  maxPerDay     Int      @default(30)
+  bufferMinutes Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clinic       Clinic         @relation(fields: [clinicId], references: [id])
+  availability Availability[]
+  slots        Slot[]
+  appointments Appointment[]
+
+  @@index([clinicId])
+}
+
+model Availability {
+  id        String  @id @default(cuid())
+  doctorId  String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, dayOfWeek])
+}
+
+model Slot {
+  id          String     @id @default(cuid())
+  doctorId    String
+  clinicId    String
+  startTime   DateTime
+  endTime     DateTime
+  status      SlotStatus @default(AVAILABLE)
+  lockedBy    String?
+  lockedUntil DateTime?
+
+  doctor      Doctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  clinic      Clinic       @relation(fields: [clinicId], references: [id])
+  appointment Appointment?
+
+  @@unique([doctorId, startTime])
+  @@index([doctorId, startTime])
+  @@index([status])
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  patientId       String
+  doctorId        String
+  slotId          String?           @unique
+  type            AppointmentType
+  status          AppointmentStatus @default(SCHEDULED)
+  queuePosition   Int?
+  reason          String?
+  diagnosisNotes  String?
+  bookedAt        DateTime          @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  updatedAt       DateTime          @updatedAt
+  reminderSent24h Boolean           @default(false)
+  reminderSent1h  Boolean           @default(false)
+  nextAlertSent   Boolean           @default(false)
+
+  patient       Patient                    @relation(fields: [patientId], references: [id])
+  doctor        Doctor                     @relation(fields: [doctorId], references: [id])
+  slot          Slot?                      @relation(fields: [slotId], references: [id])
+  smsLogs       SmsLog[]
+  statusHistory AppointmentStatusHistory[]
+
+  @@index([patientId])
+  @@index([doctorId, status])
+}
+
+model AppointmentStatusHistory {
+  id            String            @id @default(cuid())
+  appointmentId String
+  status        AppointmentStatus
+  changedBy     String
+  changedAt     DateTime          @default(now())
+  note          String?
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+model SmsLog {
+  id            String    @id @default(cuid())
+  appointmentId String?
+  toPhone       String
+  message       String
+  type          SmsType
+  status        SmsStatus @default(QUEUED)
+  twilioSid     String?
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+
+  @@index([appointmentId])
+  @@index([status])
+}

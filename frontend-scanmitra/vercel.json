@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/cron/reminders", "schedule": "*/30 * * * *" },
+    { "path": "/api/cron/release-locks", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/mark-noshows", "schedule": "0 * * * *" }
+  ]
+}
